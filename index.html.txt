@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Lab — ValeriiLooper</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #080b12;
+    --surface: #0d1117;
+    --border: rgba(99,179,237,0.12);
+    --blue: #63b3ed;
+    --violet: #b794f4;
+    --glow-blue: rgba(99,179,237,0.18);
+    --glow-violet: rgba(183,148,244,0.15);
+    --text: #e2e8f0;
+    --muted: #718096;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+  }
+  /* CANVAS */
+  #neural-canvas {
+    position: fixed; top:0; left:0;
+    width:100%; height:100%;
+    z-index: 0; opacity: 0.35;
+    pointer-events: none;
+  }
+  /* NAV */
+  nav {
+    position: fixed; top:0; left:0; right:0;
+    z-index: 100;
+    padding: 1.2rem 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(8,11,18,0.7);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.1rem;
+    color: var(--blue);
+    letter-spacing: 0.08em;
+  }
+  .logo span { color: var(--violet); }
+  nav ul { list-style:none; display:flex; gap:2rem; }
+  nav ul a {
+    text-decoration:none; color: var(--muted);
+    font-size:0.85rem; letter-spacing:0.05em;
+    transition: color 0.25s;
+  }
+  nav ul a:hover { color: var(--blue); }
+
+  /* OBSERVATIONS */
+  .obs-list { display: flex; flex-direction: column; gap: 1.6rem; }
+
+  .obs-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 2rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .obs-card::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background: linear-gradient(90deg, var(--blue), var(--violet));
+  }
+  .obs-card:hover {
+    border-color: rgba(99,179,237,0.28);
+    box-shadow: 0 0 28px var(--glow-blue);
+  }
+  .obs-card--muted { opacity: 0.55; }
+  .obs-card--muted:hover { opacity: 0.75; }
+
+  .obs-meta {
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 0.9rem;
+  }
+  .obs-date {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem; color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+  .obs-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.67rem;
+    color: var(--blue);
+    border: 1px solid rgba(99,179,237,0.22);
+    border-radius: 3px;
+    padding: 0.15rem 0.5rem;
+  }
+  .obs-title {
+    font-size: 1.05rem; font-weight: 500;
+    margin-bottom: 0.6rem; line-height: 1.45;
+  }
+  .obs-body {
+    color: var(--muted); font-size: 0.9rem;
+    line-height: 1.75; margin-bottom: 1.4rem;
+  }
+
+  /* code block */
+  .obs-code {
+    background: #060911;
+    border: 1px solid rgba(99,179,237,0.1);
+    border-radius: 6px;
+    margin-bottom: 1.2rem;
+    overflow: hidden;
+  }
+  .obs-code-header {
+    padding: 0.4rem 1rem;
+    border-bottom: 1px solid rgba(99,179,237,0.08);
+    background: rgba(99,179,237,0.04);
+  }
+  .obs-code-lang {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem; color: var(--blue);
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .obs-code pre {
+    margin: 0; padding: 1.1rem 1.2rem;
+    overflow-x: auto;
+  }
+  .obs-code code {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    color: #a0c4e8;
+    line-height: 1.7;
+  }
+
+  /* insight block */
+  .obs-insight {
+    border-left: 2px solid var(--blue);
+    padding: 0.7rem 1rem;
+    margin-bottom: 1.1rem;
+    background: rgba(99,179,237,0.04);
+    border-radius: 0 6px 6px 0;
+  }
+  .obs-insight-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem; color: var(--blue);
+    letter-spacing: 0.1em; margin-bottom: 0.4rem;
+  }
+  .obs-insight p {
+    color: var(--muted); font-size: 0.86rem; line-height: 1.7;
+  }
+  .obs-insight code {
+    font-family: 'Space Mono', monospace;
+    color: var(--violet); font-size: 0.83rem;
+  }
+
+  /* fact block */
+  .obs-fact {
+    display: flex; gap: 0.75rem; align-items: flex-start;
+    border: 1px solid rgba(183,148,244,0.18);
+    border-radius: 6px;
+    padding: 0.9rem 1rem;
+    background: rgba(183,148,244,0.04);
+  }
+  .obs-fact-icon { font-size: 1rem; flex-shrink:0; margin-top:0.1rem; }
+  .obs-fact p { color: var(--muted); font-size: 0.86rem; line-height: 1.7; }
+  .obs-fact strong { color: var(--violet); font-weight: 500; }
+
+  /* status badge */
+  .obs-status {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem; color: var(--muted);
+    letter-spacing: 0.1em; margin-top: 1rem;
+  }
+
+  /* SECTIONS */
+  section { position: relative; z-index: 1; }
+
+  /* HERO */
+  #hero {
+    min-height: 100vh;
+    display: flex; flex-direction:column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 6rem 1.5rem 4rem;
+  }
+  .hero-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--blue);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 1.4rem;
+    opacity: 0.8;
+  }
+  h1 {
+    font-size: clamp(2.4rem, 6vw, 5rem);
+    font-weight: 300;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+  }
+  h1 em {
+    font-style: normal;
+    background: linear-gradient(135deg, var(--blue), var(--violet));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-sub {
+    max-width: 520px;
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.75;
+    margin-bottom: 2.8rem;
+  }
+  .btn-row { display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; }
+  .btn {
+    padding: 0.72rem 1.8rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.25s;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--blue), var(--violet));
+    color: #080b12;
+    border: none;
+    font-weight: 700;
+  }
+  .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .btn-outline:hover { border-color: var(--blue); color: var(--blue); }
+
+  /* SECTION COMMON */
+  .section-inner {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 6rem 1.5rem;
+  }
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 0.6rem;
+  }
+  .section-title {
+    font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+    font-weight: 300;
+    letter-spacing: -0.01em;
+    margin-bottom: 1rem;
+  }
+  .section-desc {
+    color: var(--muted);
+    max-width: 520px;
+    line-height: 1.75;
+    margin-bottom: 3rem;
+    font-size: 0.95rem;
+  }
+  /* divider line */
+  .rule { border:none; border-top:1px solid var(--border); margin: 0 auto; max-width:1080px; }
+
+  /* CARDS GRID */
+  .cards { display: grid; gap: 1.2rem; }
+  .cards-3 { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+  .cards-2 { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.8rem;
+    transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content:'';
+    position:absolute; top:0; left:0; right:0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--blue), var(--violet));
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .card:hover {
+    border-color: rgba(99,179,237,0.3);
+    box-shadow: 0 0 28px var(--glow-blue);
+    transform: translateY(-3px);
+  }
+  .card:hover::before { opacity:1; }
+  .card-icon {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .card h3 {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 0.55rem;
+    color: var(--text);
+  }
+  .card p {
+    color: var(--muted);
+    font-size: 0.875rem;
+    line-height: 1.7;
+  }
+  .card-tag {
+    display: inline-block;
+    margin-top: 1.1rem;
+    font-size: 0.7rem;
+    font-family: 'Space Mono', monospace;
+    color: var(--blue);
+    border: 1px solid rgba(99,179,237,0.25);
+    border-radius: 4px;
+    padding: 0.2rem 0.55rem;
+    letter-spacing: 0.06em;
+  }
+
+  /* PROJECT CARDS */
+  .proj-card {
+    display: flex; gap: 1.5rem; align-items: flex-start;
+  }
+  .proj-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 2rem;
+    color: rgba(99,179,237,0.18);
+    font-weight: 700;
+    flex-shrink: 0;
+    line-height: 1;
+    margin-top: 0.1rem;
+  }
+  .proj-body h3 { font-size: 1.05rem; font-weight: 500; margin-bottom: 0.45rem; }
+  .proj-body p { color: var(--muted); font-size: 0.875rem; line-height: 1.7; }
+  .proj-tags { display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.8rem; }
+  .tag {
+    font-size: 0.68rem;
+    font-family: 'Space Mono', monospace;
+    padding: 0.18rem 0.5rem;
+    border-radius: 3px;
+    background: rgba(183,148,244,0.1);
+    color: var(--violet);
+    border: 1px solid rgba(183,148,244,0.2);
+  }
+
+  /* ABOUT */
+  #about .section-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+  .about-visual {
+    display: flex; align-items: center; justify-content: center;
+  }
+  .brain-svg { width: 260px; height: 260px; opacity: 0.85; }
+  .about-text .section-title { margin-bottom: 1.2rem; }
+  .about-text p {
+    color: var(--muted);
+    font-size: 0.93rem;
+    line-height: 1.8;
+    margin-bottom: 1rem;
+  }
+  .stats { display:flex; gap:2rem; margin-top:2rem; flex-wrap:wrap; }
+  .stat-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.6rem;
+    color: var(--blue);
+    font-weight: 700;
+  }
+  .stat-label { font-size: 0.75rem; color: var(--muted); margin-top:0.2rem; }
+
+  /* CONTACT */
+  #contact { background: var(--surface); }
+  #contact .section-inner { text-align:center; }
+  #contact .section-desc { margin: 0 auto 2.5rem; }
+  .contact-links {
+    display: flex; gap: 1rem; justify-content: center; flex-wrap:wrap;
+  }
+  .contact-link {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.75rem 1.4rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text);
+    font-size: 0.875rem;
+    transition: all 0.25s;
+    background: var(--bg);
+  }
+  .contact-link:hover {
+    border-color: var(--violet);
+    color: var(--violet);
+    box-shadow: 0 0 18px var(--glow-violet);
+  }
+
+  /* FOOTER */
+  footer {
+    position: relative; z-index:1;
+    text-align: center;
+    padding: 2rem;
+    color: var(--muted);
+    font-size: 0.78rem;
+    border-top: 1px solid var(--border);
+    font-family: 'Space Mono', monospace;
+  }
+
+  @media(max-width:700px) {
+    #about .section-inner { grid-template-columns: 1fr; gap:2rem; }
+    .about-visual { display:none; }
+    nav ul { gap:1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="neural-canvas"></canvas>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">MY<span>_</span>LAB</div>
+  <ul>
+    <li><a href="#observations">Наблюдения</a></li>
+    <li><a href="#research">Исследования</a></li>
+    <li><a href="#repos">GitHub</a></li>
+    <li><a href="#projects">Проекты</a></li>
+    <li><a href="#about">Обо мне</a></li>
+    <li><a href="#contact">Контакты</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-tag">// neuroscience × artificial intelligence</div>
+  <h1>Исследуя границы<br/><em>разума и машины</em></h1>
+  <p class="hero-sub">
+    Лаборатория на пересечении нейробиологии и ИИ. Изучаем принципы работы мозга, чтобы строить более умные системы — и наоборот.
+  </p>
+  <div class="btn-row">
+    <a href="#projects" class="btn btn-primary">Смотреть проекты</a>
+    <a href="#contact" class="btn btn-outline">Связаться</a>
+  </div>
+</section>
+
+<hr class="rule"/>
+
+<!-- OBSERVATIONS -->
+<section id="observations">
+  <div class="section-inner">
+    <div class="section-label">00 / наблюдения</div>
+    <h2 class="section-title">Полевой дневник</h2>
+    <p class="section-desc">Живые заметки — код, паттерны, аналогии между нейробиологией и ИИ. Не статьи, а мысли в моменте.</p>
+
+    <div class="obs-list">
+
+      <!-- POST 1 -->
+      <article class="obs-card">
+        <div class="obs-meta">
+          <span class="obs-date">2025 · 06 · 14</span>
+          <span class="obs-tag">canvas · interaction</span>
+        </div>
+        <h3 class="obs-title">DOM × Canvas: синхронизация через состояние резонанса</h3>
+        <p class="obs-body">Чтобы связать карточки с анимацией нейронной сети, достаточно глобального модификатора состояния и плавного lerp-перехода. Без него резкое ускорение частиц выглядит как баг — с ним воспринимается как органический отклик живой системы.</p>
+
+        <div class="obs-code">
+          <div class="obs-code-header"><span class="obs-code-lang">javascript</span></div>
+          <pre><code>let networkBoost = 0, targetBoost = 0;
+
+card.addEventListener('mouseenter', () => targetBoost = 1.0);
+card.addEventListener('mouseleave', () => targetBoost = 0);
+
+// в draw():
+networkBoost = lerp(networkBoost, targetBoost, 0.05);
+n.x += n.vx * (1 + networkBoost * 3);</code></pre>
+        </div>
+
+        <div class="obs-insight">
+          <div class="obs-insight-label">// аналитика</div>
+          <p>Использование <code>lerp</code> для <code>networkBoost</code> критично. Плавный переход превращает технический эффект в поведенческий — среда реагирует, а не переключается.</p>
+        </div>
+
+        <div class="obs-fact">
+          <span class="obs-fact-icon">⚡</span>
+          <p><strong>Нейробиологическая параллель:</strong> Long-Term Potentiation (LTP) — усиление синаптической передачи при повторной стимуляции. Код буквально имитирует этот процесс.</p>
+        </div>
+      </article>
+
+      <!-- POST 2 — placeholder -->
+      <article class="obs-card obs-card--muted">
+        <div class="obs-meta">
+          <span class="obs-date">скоро</span>
+          <span class="obs-tag">agents · memory</span>
+        </div>
+        <h3 class="obs-title">Рабочая память агента как θ-осцилляции</h3>
+        <p class="obs-body">Префронтальная кора удерживает контекст через ритмическую активность в диапазоне 4–8 Гц. Можно ли смоделировать это в трансформере — и нужно ли?</p>
+        <div class="obs-status">[ в работе ]</div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<hr class="rule"/>
+
+<!-- RESEARCH -->
+<section id="research">
+  <div class="section-inner">
+    <div class="section-label">01 / исследования</div>
+    <h2 class="section-title">Направления работы</h2>
+    <p class="section-desc">Фундаментальные и прикладные исследования на стыке биологических нейронных сетей и вычислительных моделей.</p>
+    <div class="cards cards-3">
+      <div class="card">
+        <div class="card-icon">🧬</div>
+        <h3>Нейронная кодировка</h3>
+        <p>Изучение того, как нейроны кодируют и передают информацию. Разработка математических моделей спайковых сетей.</p>
+        <span class="card-tag">computational neurosci</span>
+      </div>
+      <div class="card">
+        <div class="card-icon">🤖</div>
+        <h3>Нейроморфные вычисления</h3>
+        <p>Проектирование аппаратных архитектур, вдохновлённых биологическим мозгом. Энергоэффективный ИИ нового поколения.</p>
+        <span class="card-tag">neuromorphic AI</span>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔬</div>
+        <h3>Декодирование сигналов мозга</h3>
+        <p>Анализ ЭЭГ и фМРТ данных с помощью глубокого обучения. Brain-computer интерфейсы для медицины и HCI.</p>
+        <span class="card-tag">BCI / deep learning</span>
+      </div>
+      <div class="card">
+        <div class="card-icon">🌐</div>
+        <h3>Графовые нейросети</h3>
+        <p>Моделирование коннектома мозга через GNN. Анализ топологии нейронных ансамблей и передачи информации.</p>
+        <span class="card-tag">graph neural networks</span>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <h3>Синаптическая пластичность</h3>
+        <p>Правила обучения на основе STDP и их применение в обучении с подкреплением и адаптивных системах.</p>
+        <span class="card-tag">STDP / RL</span>
+      </div>
+      <div class="card">
+        <div class="card-icon">🧠</div>
+        <h3>Когнитивные архитектуры</h3>
+        <p>Построение ИИ-агентов с рабочей памятью, вниманием и планированием по аналогии с префронтальной корой.</p>
+        <span class="card-tag">cognitive AI</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule"/>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-inner">
+    <div class="section-label">02 / проекты</div>
+    <h2 class="section-title">Избранные проекты</h2>
+    <p class="section-desc">От прототипов до публикаций — здесь собраны ключевые работы лаборатории.</p>
+    <div class="cards cards-2">
+      <div class="card proj-card">
+        <div class="proj-num">01</div>
+        <div class="proj-body">
+          <h3>NeuroDecoder</h3>
+          <p>Система классификации когнитивных состояний по ЭЭГ в реальном времени. Точность 94% на публичном датасете.</p>
+          <div class="proj-tags">
+            <span class="tag">PyTorch</span><span class="tag">EEG</span><span class="tag">Transformer</span>
+          </div>
+        </div>
+      </div>
+      <div class="card proj-card">
+        <div class="proj-num">02</div>
+        <div class="proj-body">
+          <h3>SpikeNet Sim</h3>
+          <p>Симулятор спайковых нейронных сетей с поддержкой STDP и визуализацией активности в реальном времени.</p>
+          <div class="proj-tags">
+            <span class="tag">Python</span><span class="tag">Brian2</span><span class="tag">WebGL</span>
+          </div>
+        </div>
+      </div>
+      <div class="card proj-card">
+        <div class="proj-num">03</div>
+        <div class="proj-body">
+          <h3>Connectome Atlas</h3>
+          <p>Интерактивный атлас коннектома мышиного мозга с инструментами для анализа топологических паттернов.</p>
+          <div class="proj-tags">
+            <span class="tag">Graph DB</span><span class="tag">D3.js</span><span class="tag">React</span>
+          </div>
+        </div>
+      </div>
+      <div class="card proj-card">
+        <div class="proj-num">04</div>
+        <div class="proj-body">
+          <h3>CortexLLM</h3>
+          <p>Языковая модель с биологически правдоподобными механизмами внимания, основанными на θ-γ осцилляциях.</p>
+          <div class="proj-tags">
+            <span class="tag">LLM</span><span class="tag">Neurosymbolic</span><span class="tag">JAX</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule"/>
+
+<!-- REPOS -->
+<section id="repos">
+  <div class="section-inner">
+    <div class="section-label">03 / проекты на github</div>
+    <h2 class="section-title">Открытый код</h2>
+    <p class="section-desc">Избранные репозитории — живые проекты, инструменты и эксперименты.</p>
+    <div class="repos-grid" id="repos-grid">
+      <!-- skeleton -->
+      <div class="repo-card" style="pointer-events:none">
+        <div class="repo-skeleton" style="width:55%;height:13px"></div>
+        <div class="repo-skeleton" style="width:90%;height:11px;margin-top:4px"></div>
+        <div class="repo-skeleton" style="width:70%;height:11px"></div>
+        <div class="repo-skeleton" style="width:40%;height:11px;margin-top:4px"></div>
+      </div>
+      <div class="repo-card" style="pointer-events:none">
+        <div class="repo-skeleton" style="width:60%;height:13px"></div>
+        <div class="repo-skeleton" style="width:85%;height:11px;margin-top:4px"></div>
+        <div class="repo-skeleton" style="width:75%;height:11px"></div>
+        <div class="repo-skeleton" style="width:35%;height:11px;margin-top:4px"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule"/>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-inner">
+    <div class="about-visual">
+      <svg class="brain-svg" viewBox="0 0 260 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="bg-glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#63b3ed" stop-opacity="0.08"/>
+            <stop offset="100%" stop-color="#b794f4" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="brain-grad" x1="0" y1="0" x2="260" y2="260" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#63b3ed"/>
+            <stop offset="1" stop-color="#b794f4"/>
+          </linearGradient>
+        </defs>
+        <circle cx="130" cy="130" r="120" fill="url(#bg-glow)"/>
+        <!-- brain outline stylised -->
+        <path d="M80 170 C60 160 45 140 48 118 C51 96 68 85 85 88 C82 72 92 58 108 57 C118 56 126 63 130 72 C134 63 142 56 152 57 C168 58 178 72 175 88 C192 85 209 96 212 118 C215 140 200 160 180 170 C170 178 155 182 130 183 C105 182 90 178 80 170Z" stroke="url(#brain-grad)" stroke-width="1.5" fill="none" opacity="0.7"/>
+        <!-- hemisphere divider -->
+        <line x1="130" y1="72" x2="130" y2="183" stroke="url(#brain-grad)" stroke-width="0.8" stroke-dasharray="3 4" opacity="0.4"/>
+        <!-- folds left -->
+        <path d="M75 120 Q90 110 85 130 Q80 145 95 150" stroke="#63b3ed" stroke-width="1" fill="none" opacity="0.5"/>
+        <path d="M68 140 Q82 133 80 148 Q78 158 90 162" stroke="#63b3ed" stroke-width="1" fill="none" opacity="0.4"/>
+        <path d="M90 100 Q104 95 100 112" stroke="#63b3ed" stroke-width="1" fill="none" opacity="0.5"/>
+        <!-- folds right -->
+        <path d="M185 120 Q170 110 175 130 Q180 145 165 150" stroke="#b794f4" stroke-width="1" fill="none" opacity="0.5"/>
+        <path d="M192 140 Q178 133 180 148 Q182 158 170 162" stroke="#b794f4" stroke-width="1" fill="none" opacity="0.4"/>
+        <path d="M170 100 Q156 95 160 112" stroke="#b794f4" stroke-width="1" fill="none" opacity="0.5"/>
+        <!-- nodes -->
+        <circle cx="100" cy="105" r="3" fill="#63b3ed" opacity="0.8"><animate attributeName="opacity" values="0.8;0.3;0.8" dur="2.1s" repeatCount="indefinite"/></circle>
+        <circle cx="118" cy="130" r="2.5" fill="#63b3ed" opacity="0.7"><animate attributeName="opacity" values="0.7;0.2;0.7" dur="1.7s" repeatCount="indefinite"/></circle>
+        <circle cx="160" cy="105" r="3" fill="#b794f4" opacity="0.8"><animate attributeName="opacity" values="0.8;0.3;0.8" dur="2.5s" repeatCount="indefinite"/></circle>
+        <circle cx="142" cy="130" r="2.5" fill="#b794f4" opacity="0.7"><animate attributeName="opacity" values="0.7;0.2;0.7" dur="1.9s" repeatCount="indefinite"/></circle>
+        <circle cx="130" cy="155" r="2" fill="#63b3ed" opacity="0.6"><animate attributeName="opacity" values="0.6;0.1;0.6" dur="2.3s" repeatCount="indefinite"/></circle>
+        <!-- synapse lines -->
+        <line x1="100" y1="105" x2="118" y2="130" stroke="#63b3ed" stroke-width="0.6" opacity="0.3"/>
+        <line x1="118" y1="130" x2="130" y2="155" stroke="#63b3ed" stroke-width="0.6" opacity="0.3"/>
+        <line x1="160" y1="105" x2="142" y2="130" stroke="#b794f4" stroke-width="0.6" opacity="0.3"/>
+        <line x1="142" y1="130" x2="130" y2="155" stroke="#b794f4" stroke-width="0.6" opacity="0.3"/>
+        <line x1="118" y1="130" x2="142" y2="130" stroke="url(#brain-grad)" stroke-width="0.6" opacity="0.25"/>
+      </svg>
+    </div>
+    <div class="about-text">
+      <div class="section-label">03 / обо мне</div>
+      <h2 class="section-title">Исследователь на стыке двух миров</h2>
+      <p>Я изучаю, как работает мозг — и использую эти знания, чтобы строить более умный ИИ. Мне интересны системы, которые учатся так же, как это делает природа: адаптивно, энергоэффективно, робастно.</p>
+      <p>Мой подход — строгая математика плюс эксперимент. Публикуюсь в NeurIPS, ICLR, Nature Neuroscience. Открыт к коллаборациям.</p>
+      <div class="stats">
+        <div>
+          <div class="stat-num">12+</div>
+          <div class="stat-label">публикаций</div>
+        </div>
+        <div>
+          <div class="stat-num">4</div>
+          <div class="stat-label">open-source проекта</div>
+        </div>
+        <div>
+          <div class="stat-num">6</div>
+          <div class="stat-label">лет исследований</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule"/>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-inner">
+    <div class="section-label">04 / контакты</div>
+    <h2 class="section-title">Давайте работать вместе</h2>
+    <p class="section-desc">Открыт для академических коллабораций, индустриальных партнёрств и интересных разговоров о науке.</p>
+    <div class="contact-links">
+      <a href="mailto:hello@mylab.ai" class="contact-link">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/></svg>
+        hello@mylab.ai
+      </a>
+      <a href="#" class="contact-link">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.1.82-.26.82-.58v-2.03c-3.34.73-4.04-1.6-4.04-1.6-.55-1.39-1.34-1.76-1.34-1.76-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.48.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.52.12-3.17 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.04.13 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.66 1.65.24 2.87.12 3.17.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.69.83.57C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub
+      </a>
+      <a href="#" class="contact-link">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0H5a5 5 0 0 0-5 5v14a5 5 0 0 0 5 5h14a5 5 0 0 0 5-5V5a5 5 0 0 0-5-5zM8 19H5V8h3v11zM6.5 6.73a1.77 1.77 0 1 1 0-3.54 1.77 1.77 0 0 1 0 3.54zM20 19h-3v-5.6c0-3.37-4-3.12-4 0V19h-3V8h3v1.77C14.4 7.3 20 7.1 20 12.3V19z"/></svg>
+        LinkedIn
+      </a>
+      <a href="#" class="contact-link">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        Scholar
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span style="color:#63b3ed">MY_LAB</span> &nbsp;·&nbsp; © 2025 &nbsp;·&nbsp; built with curiosity
+</footer>
+
+<script>
+// ── NEURAL NETWORK CANVAS ──────────────────────────────────────────────
+const canvas = document.getElementById('neural-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, nodes = [];
+
+const N_NODES = 48;
+const SEEK_DIST = 170;
+const TIP_CONTACT = 18;   // tip-to-tip distance to form synapse
+const SPEED = 0.18;
+const N_DEND = 4;
+const DEND_LEN = 28;
+const SWAY_SPEED = 0.008; // very slow sway
+const SWAY_AMP = 0.3;
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+
+function initNodes() {
+  nodes = [];
+  for (let i = 0; i < N_NODES; i++) {
+    const baseAngle = Math.random() * Math.PI * 2;
+    const dendrits = Array.from({length: N_DEND}, (_, d) => ({
+      baseAngle: baseAngle + (d / N_DEND) * Math.PI * 2,
+      phase: Math.random() * Math.PI * 2,
+      phaseSpeed: (0.4 + Math.random() * 0.6) * SWAY_SPEED,
+      len: DEND_LEN + Math.random() * 10,
+      // current tip position (world coords) — smoothly interpolated
+      tipX: 0, tipY: 0,
+      // target tip (for smooth lerp)
+      tgtX: 0, tgtY: 0,
+      contact: 0,          // 0→1 contact strength
+      connectedTo: null    // ref to other node when connected
+    }));
+    nodes.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      vx: (Math.random() - 0.5) * SPEED,
+      vy: (Math.random() - 0.5) * SPEED,
+      r: 2.6 + Math.random() * 1.4,
+      pulse: Math.random() * Math.PI * 2,
+      col: Math.random(),
+      dendrits
+    });
+  }
+  // init tip positions
+  for (const n of nodes) for (const d of n.dendrits) {
+    d.tipX = d.tgtX = n.x + Math.cos(d.baseAngle) * d.len;
+    d.tipY = d.tgtY = n.y + Math.sin(d.baseAngle) * d.len;
+  }
+}
+
+function lerp(a, b, t) { return a + (b - a) * t; }
+function nc(t, a) {
+  return `rgba(${Math.round(lerp(99,183,t))},${Math.round(lerp(179,148,t))},${Math.round(lerp(237,244,t))},${a})`;
+}
+
+let frame = 0;
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  frame++;
+
+  // move neurons
+  for (const n of nodes) {
+    // pointer influence
+    if (pointer.active) {
+      const dx = n.x - pointer.x, dy = n.y - pointer.y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < POINTER_RADIUS && dist > 0.1) {
+        const force = (1 - dist / POINTER_RADIUS) * 0.012;
+        // repel gently + boost velocity in pointer zone
+        n.vx += (dx / dist) * force;
+        n.vy += (dy / dist) * force;
+        // speed boost — cap to avoid runaway
+        const spd = Math.sqrt(n.vx*n.vx + n.vy*n.vy);
+        const maxSpd = SPEED * (1 + POINTER_BOOST * (1 - dist / POINTER_RADIUS));
+        if (spd > maxSpd) { n.vx = (n.vx/spd)*maxSpd; n.vy = (n.vy/spd)*maxSpd; }
+      }
+    }
+    // gentle speed decay back to base
+    const spd = Math.sqrt(n.vx*n.vx + n.vy*n.vy);
+    if (spd > SPEED * 1.05) { n.vx *= 0.985; n.vy *= 0.985; }
+
+    n.x += n.vx; n.y += n.vy;
+    n.pulse += 0.014;
+    if (n.x < 0 || n.x > W) n.vx *= -1;
+    if (n.y < 0 || n.y > H) n.vy *= -1;
+  }
+
+  // for each dendrite: compute free-sway target tip
+  for (const n of nodes) {
+    for (const d of n.dendrits) {
+      d.phase += d.phaseSpeed;
+      const swayAngle = d.baseAngle + Math.sin(d.phase) * SWAY_AMP;
+      d.freeTipX = n.x + Math.cos(swayAngle) * d.len;
+      d.freeTipY = n.y + Math.sin(swayAngle) * d.len;
+    }
+  }
+
+  // tip-to-tip contact detection & seek
+  for (let i = 0; i < nodes.length; i++) {
+    const ni = nodes[i];
+    for (const di of ni.dendrits) {
+      // if already connected, check if still close enough
+      if (di.connectedTo) {
+        const other = di.connectedTo;
+        // find best matching tip on other node
+        let bestDist = Infinity, bestDj = null;
+        for (const dj of other.dendrits) {
+          const dx = di.freeTipX - dj.freeTipX;
+          const dy = di.freeTipY - dj.freeTipY;
+          const dist = Math.sqrt(dx*dx+dy*dy);
+          if (dist < bestDist) { bestDist = dist; bestDj = dj; }
+        }
+        if (bestDist > TIP_CONTACT * 3.5) {
+          di.connectedTo = null;
+          di.contact = Math.max(0, di.contact - 0.02);
+        }
+        continue;
+      }
+
+      // seek: find closest tip of another neuron within SEEK_DIST
+      let bestDist = Infinity, bestNode = null;
+      for (let j = 0; j < nodes.length; j++) {
+        if (i === j) continue;
+        const nj = nodes[j];
+        const bdx = ni.x - nj.x, bdy = ni.y - nj.y;
+        if (bdx*bdx + bdy*bdy > SEEK_DIST*SEEK_DIST) continue;
+        for (const dj of nj.dendrits) {
+          const dx = di.freeTipX - dj.freeTipX;
+          const dy = di.freeTipY - dj.freeTipY;
+          const dist = Math.sqrt(dx*dx+dy*dy);
+          if (dist < bestDist) { bestDist = dist; bestNode = nj; }
+        }
+      }
+
+      if (bestNode) {
+        const pull = 1 - Math.min(bestDist, SEEK_DIST) / SEEK_DIST;
+        // find the actual closest tip on bestNode
+        let minD = Infinity, closestTipX = 0, closestTipY = 0;
+        for (const dj of bestNode.dendrits) {
+          const dx = di.freeTipX - dj.freeTipX;
+          const dy = di.freeTipY - dj.freeTipY;
+          const d2 = dx*dx+dy*dy;
+          if (d2 < minD) { minD = d2; closestTipX = dj.freeTipX; closestTipY = dj.freeTipY; }
+        }
+        // blend tip toward target
+        di.tgtX = lerp(di.freeTipX, closestTipX, pull * 0.55);
+        di.tgtY = lerp(di.freeTipY, closestTipY, pull * 0.55);
+
+        if (bestDist < TIP_CONTACT) {
+          di.contact = Math.min(1, di.contact + 0.035);
+          di.connectedTo = bestNode;
+        } else {
+          di.contact = Math.max(0, di.contact - 0.015);
+        }
+      } else {
+        di.tgtX = di.freeTipX;
+        di.tgtY = di.freeTipY;
+        di.contact = Math.max(0, di.contact - 0.015);
+      }
+
+      // smooth tip movement — slow lerp for fluid feel
+      di.tipX = lerp(di.tipX, di.tgtX, 0.04);
+      di.tipY = lerp(di.tipY, di.tgtY, 0.04);
+    }
+  }
+
+  // ── DRAW ──
+  for (const n of nodes) {
+    const glow = (Math.sin(n.pulse) + 1) / 2;
+
+    for (const d of n.dendrits) {
+      // control point: offset perpendicular for organic curve
+      const cpX = (n.x + d.tipX) / 2 + (d.tipY - n.y) * 0.22;
+      const cpY = (n.y + d.tipY) / 2 - (d.tipX - n.x) * 0.22;
+
+      const alpha = 0.32 + d.contact * 0.52;
+      const lw = 1.0 + d.contact * 1.2;
+      ctx.beginPath();
+      ctx.strokeStyle = nc(n.col, alpha);
+      ctx.lineWidth = lw;
+      ctx.moveTo(n.x, n.y);
+      ctx.quadraticCurveTo(cpX, cpY, d.tipX, d.tipY);
+      ctx.stroke();
+
+      // synapse point — only on contact
+      if (d.contact > 0.05) {
+        const r = 1.5 + d.contact * 2.5;
+        ctx.beginPath();
+        ctx.arc(d.tipX, d.tipY, r, 0, Math.PI * 2);
+        ctx.fillStyle = nc(n.col, d.contact * 0.95);
+        ctx.fill();
+
+        // draw connection line between tips when fully connected
+        if (d.connectedTo && d.contact > 0.4) {
+          const t2 = (n.col + d.connectedTo.col) / 2;
+          ctx.beginPath();
+          ctx.strokeStyle = nc(t2, d.contact * 0.75);
+          ctx.lineWidth = 1.2 + d.contact * 1.2;
+          ctx.moveTo(d.tipX, d.tipY);
+          // find matching tip
+          let minD = Infinity, otherTX = d.tipX, otherTY = d.tipY;
+          for (const dj of d.connectedTo.dendrits) {
+            const dx = d.tipX - dj.tipX, dy = d.tipY - dj.tipY;
+            const dist = dx*dx+dy*dy;
+            if (dist < minD) { minD = dist; otherTX = dj.tipX; otherTY = dj.tipY; }
+          }
+          ctx.lineTo(otherTX, otherTY);
+          ctx.stroke();
+        }
+      }
+    }
+
+    // neuron body
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, n.r + glow * 0.8, 0, Math.PI * 2);
+    ctx.fillStyle = nc(n.col, 0.5 + glow * 0.35);
+    ctx.fill();
+  }
+
+  requestAnimationFrame(draw);
+}
+
+// ── POINTER TRACKING ──────────────────────────────────────────────────
+const pointer = { x: -999, y: -999, active: false };
+const POINTER_RADIUS = 120;
+const POINTER_BOOST  = 3.5;
+
+function onMove(x, y) {
+  pointer.x = x; pointer.y = y; pointer.active = true;
+}
+window.addEventListener('mousemove', e => onMove(e.clientX, e.clientY));
+window.addEventListener('touchmove', e => {
+  onMove(e.touches[0].clientX, e.touches[0].clientY);
+}, { passive: true });
+window.addEventListener('touchstart', e => {
+  onMove(e.touches[0].clientX, e.touches[0].clientY);
+});
+window.addEventListener('touchend', () => { pointer.active = false; });
+window.addEventListener('mouseleave', () => { pointer.active = false; });
+
+window.addEventListener('resize', () => { resize(); initNodes(); });
+resize(); initNodes(); draw();
+
+// ── GITHUB REPOS ──────────────────────────────────────────────────────
+// Добавляй/убирай имена репо вручную:
+const PINNED_REPOS = [
+  'monitor_bot_v2',
+  'news_bot',
+  // добавь сюда другие репо когда нужно
+];
+const GH_USER = 'ValeriiLooper';
+
+const LANG_COLORS = {
+  Python:'#3572A5', JavaScript:'#f1e05a', TypeScript:'#3178c6',
+  HTML:'#e34c26', CSS:'#563d7c', Shell:'#89e051',
+  Jupyter:'#DA5B0B', Rust:'#dea584', Go:'#00ADD8', default:'#8b8b8b'
+};
+
+function fmtDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('ru-RU', {day:'2-digit', month:'short', year:'numeric'});
+}
+
+async function loadRepos() {
+  const grid = document.getElementById('repos-grid');
+  try {
+    const results = await Promise.all(
+      PINNED_REPOS.map(name =>
+        fetch(`https://api.github.com/repos/${GH_USER}/${name}`)
+          .then(r => r.ok ? r.json() : null)
+          .catch(() => null)
+      )
+    );
+    const repos = results.filter(Boolean);
+    if (!repos.length) {
+      grid.innerHTML = `<p class="repo-error">Репозитории не найдены. Проверь названия в PINNED_REPOS.</p>`;
+      return;
+    }
+    grid.innerHTML = repos.map(r => {
+      const lang = r.language || '';
+      const dot = LANG_COLORS[lang] || LANG_COLORS.default;
+      const desc = r.description || 'Описание не указано';
+      const updated = fmtDate(r.pushed_at);
+      return `
+      <a class="repo-card" href="${r.html_url}" target="_blank" rel="noopener">
+        <div class="repo-name">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h7A2.5 2.5 0 0 1 14 2.5v10.5a.5.5 0 0 1-.777.416L8 10.101l-5.223 3.315A.5.5 0 0 1 2 13V2.5z"/>
+          </svg>
+          ${r.name}
+        </div>
+        <div class="repo-desc">${desc}</div>
+        <div class="repo-meta">
+          ${lang ? `<span class="repo-lang"><span class="repo-lang-dot" style="background:${dot}"></span>${lang}</span>` : ''}
+          <span class="repo-stat">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25z"/></svg>
+            ${r.stargazers_count}
+          </span>
+          <span class="repo-stat">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0z"/></svg>
+            ${r.forks_count}
+          </span>
+          <span class="repo-date">обновлён ${updated}</span>
+        </div>
+      </a>`;
+    }).join('');
+  } catch(e) {
+    grid.innerHTML = `<p class="repo-error">Ошибка загрузки репозиториев.</p>`;
+  }
+}
+loadRepos();
+
+// ── SCROLL FADE-IN ─────────────────────────────────────────────────────
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.card, .section-title, .section-desc, .stats, .contact-links').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(22px)';
+  el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+  observer.observe(el);
+});
+</script>
+</body>
+</html>
