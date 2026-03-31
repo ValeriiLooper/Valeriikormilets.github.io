@@ -748,10 +748,10 @@ let W, H, nodes = [];
 const N_NODES = 48;
 const SEEK_DIST = 170;
 const TIP_CONTACT = 18;   // tip-to-tip distance to form synapse
-const SPEED = 0.18;
+const SPEED = 0.25;
 const N_DEND = 4;
 const DEND_LEN = 28;
-const SWAY_SPEED = 0.008; // very slow sway
+const SWAY_SPEED = 0.02; // very slow sway
 const SWAY_AMP = 0.3;
 
 function resize() {
@@ -968,7 +968,7 @@ function draw() {
 // ── POINTER TRACKING ──────────────────────────────────────────────────
 const pointer = { x: -999, y: -999, active: false };
 const POINTER_RADIUS = 120;
-const POINTER_BOOST  = 3.5;
+const POINTER_BOOST  = 6.0;
 
 function onMove(x, y) {
   pointer.x = x; pointer.y = y; pointer.active = true;
