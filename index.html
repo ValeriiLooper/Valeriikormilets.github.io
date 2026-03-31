@@ -737,6 +737,25 @@ n.x += n.vx * (1 + networkBoost * 3);</code></pre>
 
 <footer>
   <span style="color:#63b3ed">MY_LAB</span> &nbsp;·&nbsp; © 2025 &nbsp;·&nbsp; built with curiosity
+<section id="sitemap" style="padding: 4rem 1.5rem; background: var(--bg); border-top: 1px solid var(--border);">
+  <div class="section-inner" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 2rem; text-align: left;">
+    <div>
+      <h4 style="color: var(--blue); margin-bottom: 1rem; font-family: 'Space Mono'; font-size: 0.8rem;">НАВИГАЦИЯ</h4>
+      <ul style="list-style: none; line-height: 2;">
+        <li><a href="#hero" style="color: var(--muted); text-decoration: none; font-size: 0.85rem;">Главная</a></li>
+        <li><a href="#observations" style="color: var(--muted); text-decoration: none; font-size: 0.85rem;">Блог / Заметки</a></li>
+        <li><a href="#projects" style="color: var(--muted); text-decoration: none; font-size: 0.85rem;">Портфолио</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4 style="color: var(--violet); margin-bottom: 1rem; font-family: 'Space Mono'; font-size: 0.8rem;">РЕСУРСЫ</h4>
+      <ul style="list-style: none; line-height: 2;">
+        <li><a href="https://github.com/ValeriiLooper" target="_blank" style="color: var(--muted); text-decoration: none; font-size: 0.85rem;">GitHub Profile</a></li>
+        <li><a href="#research" style="color: var(--muted); text-decoration: none; font-size: 0.85rem;">Исследования</a></li>
+      </ul>
+    </div>
+  </div>
+</section>
 </footer>
 
 <script>
@@ -904,8 +923,8 @@ function draw() {
       }
 
       // smooth tip movement — slow lerp for fluid feel
-      di.tipX = lerp(di.tipX, di.tgtX, 0.04);
-      di.tipY = lerp(di.tipY, di.tgtY, 0.04);
+      di.tipX = lerp(di.tipX, di.tgtX, 0.08);
+      di.tipY = lerp(di.tipY, di.tgtY, 0.08);
     }
   }
 
