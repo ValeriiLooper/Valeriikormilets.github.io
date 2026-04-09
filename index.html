@@ -13,15 +13,9 @@
   --blue: #63b3ed; --violet: #b794f4; --text: #e2e8f0; --muted: #718096;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { 
-  background: var(--bg); color: var(--text); 
-  font-family: 'Inter', sans-serif; overflow-x: hidden; line-height: 1.6; 
-}
-/* Кастомное выделение */
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow-x: hidden; line-height: 1.6; }
 ::selection { background: var(--blue); color: var(--bg); }
-
 #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
-
 .section-inner { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
 header { padding: 2rem 1.5rem; display: flex; justify-content: space-between; align-items: center; position: fixed; width: 100%; top: 0; z-index: 100; backdrop-filter: blur(8px); }
 .logo { font-family: 'Space Mono', monospace; font-weight: 700; letter-spacing: 2px; color: var(--blue); }
@@ -36,7 +30,7 @@ nav a:hover { color: var(--text); }
 .btn { padding: 1rem 2rem; border-radius: 8px; text-decoration: none; font-weight: 500; transition: 0.3s; cursor: pointer; border: none; }
 .btn-primary { background: linear-gradient(135deg, var(--blue), var(--violet)); color: var(--bg); }
 .btn-secondary { border: 1px solid var(--border); color: var(--text); background: rgba(255,255,255,0.03); }
-.btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+.btn:hover { transform: translateY(-3px); }
 
 section { padding: 8rem 1.5rem; }
 .section-title { font-family: 'Space Mono', monospace; color: var(--blue); font-size: 0.8rem; letter-spacing: 3px; margin-bottom: 1rem; text-transform: uppercase; }
@@ -48,31 +42,18 @@ section { padding: 8rem 1.5rem; }
 
 .card { 
   background: var(--surface); border: 1px solid var(--border); padding: 2.5rem; border-radius: 16px; 
-  transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden;
+  transition: 0.4s; position: relative; overflow: hidden;
 }
-/* Эффект сканирования при наведении */
 .card:hover {
   border-color: var(--blue); transform: translateY(-5px);
-  background: linear-gradient(110deg, var(--surface) 45%, rgba(99,179,237,0.05) 50%, var(--surface) 55%);
-  background-size: 200% 100%; animation: scan 2s infinite linear;
+  background: linear-gradient(110deg, var(--surface) 45%, rgba(99,179,237,0.04) 50%, var(--surface) 55%);
+  background-size: 200% 100%; animation: scan 3s infinite linear;
 }
 @keyframes scan { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
 .card h3 { font-size: 1.4rem; margin-bottom: 1rem; }
 .card p { color: var(--muted); font-size: 0.95rem; }
 .card-tag { display: inline-block; margin-top: 1.5rem; font-family: 'Space Mono'; font-size: 0.7rem; color: var(--blue); border: 1px solid rgba(99,179,237,0.3); padding: 2px 8px; border-radius: 4px; }
-
-.proj-num { font-family: 'Space Mono'; color: var(--muted); opacity: 0.3; font-size: 3rem; position: absolute; top: 1rem; right: 1.5rem; }
-.proj-tags { display: flex; gap: 0.8rem; margin-top: 2rem; }
-.tag { font-size: 0.75rem; color: var(--muted); border-bottom: 1px solid var(--border); }
-
-/* Карта сайта в футере */
-#sitemap { padding: 4rem 1.5rem; background: var(--bg); border-top: 1px solid var(--border); }
-.sitemap-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 2rem; text-align: left; }
-.sitemap-grid h4 { color: var(--blue); margin-bottom: 1rem; font-family: 'Space Mono'; font-size: 0.8rem; }
-.sitemap-grid ul { list-style: none; line-height: 2; }
-.sitemap-grid a { color: var(--muted); text-decoration: none; font-size: 0.85rem; transition: 0.2s; }
-.sitemap-grid a:hover { color: var(--blue); padding-left: 5px; }
+.proj-num { font-family: 'Space Mono'; color: var(--muted); opacity: 0.2; font-size: 3rem; position: absolute; top: 1rem; right: 1.5rem; }
 
 footer { padding: 4rem 1.5rem; text-align: center; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.8rem; }
 </style>
@@ -82,21 +63,17 @@ footer { padding: 4rem 1.5rem; text-align: center; border-top: 1px solid var(--b
 
 <header>
   <div class="logo">MY_LAB</div>
-  <nav>
-    <a href="#research">Направления</a>
-    <a href="#projects">Проекты</a>
-    <a href="https://github.com/ValeriiLooper" target="_blank">GitHub</a>
-  </nav>
+  <nav><a href="#research">Направления</a><a href="#projects">Проекты</a><a href="https://github.com/ValeriiLooper" target="_blank">GitHub</a></nav>
 </header>
 
 <main>
   <section class="hero" id="hero">
     <div class="section-inner">
       <h1>Архитектура<br/><span style="color:var(--blue)">мысли и кода.</span></h1>
-      <p>Экспериментальная лаборатория на стыке нейробиологии и ИИ. Мы изучаем принципы работы мозга, чтобы строить более умные системы.</p>
+      <p>Экспериментальная лаборатория на стыке нейробиологии и ИИ. Изучаем принципы работы мозга, чтобы строить более умные системы — и наоборот.</p>
       <div class="btn-group">
         <a href="#projects" class="btn btn-primary">Смотреть проекты</a>
-        <a href="mailto:your-email@example.com" class="btn btn-secondary">Связаться</a>
+        <a href="mailto:valerii.looper@gmail.com" class="btn btn-secondary">Связаться</a>
       </div>
     </div>
   </section>
@@ -104,11 +81,11 @@ footer { padding: 4rem 1.5rem; text-align: center; border-top: 1px solid var(--b
   <section id="research">
     <div class="section-inner">
       <div class="section-title">01 / Направления работы</div>
-      <div class="section-desc">Исследования в области когнитивных систем.</div>
+      <div class="section-desc">Ключевые компетенции в разработке когнитивных систем.</div>
       <div class="cards cards-3">
-        <div class="card"><h3>Архитектуры нейросетей</h3><p>Проектирование кастомных топологий и механизмов внимания, оптимизация весов и дистилляция моделей.</p><span class="card-tag">Deep Learning</span></div>
-        <div class="card"><h3>Анализ биосигналов</h3><p>Обработка и классификация временных рядов (ЭЭГ, ЭКГ) с использованием трансформеров.</p><span class="card-tag">Signal Processing</span></div>
-        <div class="card"><h3>MLOps & Инфраструктура</h3><p>Развертывание моделей в продакшн и автоматизация циклов дообучения нейросетей.</p><span class="card-tag">Infrastructure</span></div>
+        <div class="card"><h3>Архитектуры нейросетей</h3><p>Проектирование кастомных топологий и механизмов внимания, оптимизация весов и дистилляция моделей для edge-устройств.</p><span class="card-tag">Deep Learning</span></div>
+        <div class="card"><h3>Анализ биосигналов</h3><p>Обработка и классификация временных рядов (ЭЭГ, ЭКГ) с использованием трансформеров и рекуррентных сетей.</p><span class="card-tag">Signal Processing</span></div>
+        <div class="card"><h3>MLOps & Инфраструктура</h3><p>Развертывание моделей в продакшн, контейнеризация и автоматизация циклов дообучения нейросетей.</p><span class="card-tag">Infrastructure</span></div>
       </div>
     </div>
   </section>
@@ -116,69 +93,43 @@ footer { padding: 4rem 1.5rem; text-align: center; border-top: 1px solid var(--b
   <section id="projects">
     <div class="section-inner">
       <div class="section-title">02 / Избранные проекты</div>
-      <div class="section-desc">Прототипы и рабочие инструменты.</div>
+      <div class="section-desc">Практическая реализация идей.</div>
       <div class="cards cards-2" id="repos-grid">
-        <div class="card proj-card">
+        <div class="card">
           <div class="proj-num">01</div>
-          <div class="proj-body">
-            <h3>Project_Alpha</h3>
-            <p>Система предиктивной аналитики для мониторинга аномалий в реальном времени. Снижение ложных срабатываний на 30%.</p>
-            <div class="proj-tags"><span class="tag">Python</span><span class="tag">PyTorch</span></div>
-          </div>
+          <h3>Project_Alpha</h3>
+          <p>Система предиктивной аналитики для мониторинга аномалий в реальном времени. Снижение ложных срабатываний на 30%.</p>
+          <div style="margin-top:1.5rem"><span class="card-tag">Python</span> <span class="card-tag">PyTorch</span></div>
+        </div>
+        <div class="card">
+          <div class="proj-num">02</div>
+          <h3>NeuroVision_SDK</h3>
+          <p>Библиотека для компьютерного зрения, оптимизированная под мобильные процессоры. Распознавание за 15мс.</p>
+          <div style="margin-top:1.5rem"><span class="card-tag">C++</span> <span class="card-tag">ONNX</span></div>
         </div>
       </div>
     </div>
   </section>
 </main>
 
-<section id="sitemap">
-  <div class="section-inner">
-    <div class="sitemap-grid">
-      <div>
-        <h4>НАВИГАЦИЯ</h4>
-        <ul>
-          <li><a href="#hero">Главная</a></li>
-          <li><a href="#research">Направления</a></li>
-          <li><a href="#projects">Проекты</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4>РЕСУРСЫ</h4>
-        <ul>
-          <li><a href="https://github.com/ValeriiLooper" target="_blank">GitHub Profile</a></li>
-          <li><a href="https://api.github.com" target="_blank">GitHub API Documentation</a></li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
-
 <footer>
-  <p>&copy; 2026 ValeriiLooper. Система функционирует в режиме симуляции.</p>
+  <p>&copy; 2026 ValeriiLooper. Симуляция нейронной сети активна.</p>
 </footer>
+
 <script>
 const canvas = document.getElementById('canvas-bg');
 const ctx = canvas.getContext('2d');
-
 let width, height, nodes = [];
 
-// ── CONFIG ──
-const N_NODES = 128;      // Оптимальное количество для плотности
-const SPEED = 0.55;       // Повышенная скорость движения
-const SEEK_DIST = 110;    // Радиус поиска связей (предотвращает хаос)
-const TIP_CONTACT = 55;   // Дистанция фиксации контакта
-const MOUSE_BOOST = 5.0;  // Сила влияния курсора
-const FRICTION = 0.35;    // "Вязкость" при соединении (замедление)
+// ── CONFIG (Исправлено) ──
+const N_NODES = 128; 
+const SPEED = 0.22;       // Замедлено в 2.5 раза
+const SEEK_DIST = 115;    
+const FRICTION = 0.45;    // Повышенная "вязкость" при контакте
+const BOUNCE_DAMP = 0.8;  // Гашение скорости при ударе о стену (не резкий отскок)
 
-function resize() {
-  width = canvas.width = window.innerWidth;
-  height = canvas.height = window.innerHeight;
-}
-
-function nc(t, a) {
-  return `hsla(${190 + t * 60}, 75%, 70%, ${a})`;
-}
-
+function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+function nc(t, a) { return `hsla(${190 + t * 60}, 75%, 70%, ${a})`; }
 function lerp(a, b, t) { return a + (b - a) * t; }
 
 function initNodes() {
@@ -187,140 +138,82 @@ function initNodes() {
     nodes.push({
       x: Math.random() * width, y: Math.random() * height,
       vx: (Math.random() - 0.5) * 2, vy: (Math.random() - 0.5) * 2,
-      r: 1.5 + Math.random() * 1.5,
-      col: Math.random(), pulse: Math.random() * 10,
-      dendrits: Array.from({length: 2 + Math.floor(Math.random() * 2)}, () => ({
-        tipX: 0, tipY: 0, tgtX: 0, tgtY: 0,
-        freeTipX: 0, freeTipY: 0,
-        contact: 0, connectedTo: null
-      }))
+      r: 1.2, col: Math.random(), pulse: Math.random() * 100,
+      dendrits: Array.from({length: 2}, () => ({ tipX: 0, tipY: 0, contact: 0 }))
     });
   }
 }
 
 function draw() {
   ctx.clearRect(0, 0, width, height);
-
   for (const n of nodes) {
-    // Вычисляем вязкость: если есть контакт, нейрон движется медленнее
     const hasContact = n.dendrits.some(d => d.contact > 0.5);
-    const currentFriction = hasContact ? FRICTION : 1.0;
+    const currFriction = hasContact ? FRICTION : 1.0;
 
-    n.x += n.vx * SPEED * currentFriction;
-    n.y += n.vy * SPEED * currentFriction;
-    n.pulse += 0.04;
+    n.x += n.vx * SPEED * currFriction;
+    n.y += n.vy * SPEED * currFriction;
+    n.pulse += 0.012; // Замедленное вращение (сюрикены исчезли)
 
-    // Отскок от границ
-    if (n.x < 0 || n.x > width) n.vx *= -1;
-    if (n.y < 0 || n.y > height) n.vy *= -1;
-
-    // Влияние мыши
-    if (pointer.active) {
-      const dx = pointer.x - n.x, dy = pointer.y - n.y;
-      const d = Math.sqrt(dx*dx + dy*dy);
-      if (d < 150) {
-        const f = (1 - d / 150) * MOUSE_BOOST;
-        n.x -= dx * f * 0.02; n.y -= dy * f * 0.02;
-      }
-    }
+    // Мягкий отскок от границ
+    if (n.x < 0 || n.x > width) { n.vx *= -BOUNCE_DAMP; n.x = n.x < 0 ? 0 : width; }
+    if (n.y < 0 || n.y > height) { n.vy *= -BOUNCE_DAMP; n.y = n.y < 0 ? 0 : height; }
 
     for (const di of n.dendrits) {
-      const angle = n.pulse + nodes.indexOf(n) + n.dendrits.indexOf(di) * 2;
-      di.freeTipX = n.x + Math.cos(angle) * 35;
-      di.freeTipY = n.y + Math.sin(angle) * 35;
+      const angle = n.pulse + nodes.indexOf(n) + n.dendrits.indexOf(di) * Math.PI;
+      const freeX = n.x + Math.cos(angle) * 40;
+      const freeY = n.y + Math.sin(angle) * 40;
 
-      let bestNode = null, bestDist = SEEK_DIST;
+      let bestDist = SEEK_DIST, target = null;
       for (const other of nodes) {
         if (other === n) continue;
-        const dx = di.freeTipX - other.x, dy = di.freeTipY - other.y;
-        const d = Math.sqrt(dx*dx + dy*dy);
-        if (d < bestDist) { bestDist = d; bestNode = other; }
+        const d = Math.hypot(freeX - other.x, freeY - other.y);
+        if (d < bestDist) { bestDist = d; target = other; }
       }
 
-      if (bestNode) {
+      if (target) {
         const pull = 1 - bestDist / SEEK_DIST;
-        di.tgtX = lerp(di.freeTipX, bestNode.x, pull * 0.6);
-        di.tgtY = lerp(di.freeTipY, bestNode.y, pull * 0.6);
-        di.contact = Math.min(1, di.contact + 0.04);
-        di.connectedTo = bestNode;
+        di.tipX = lerp(di.tipX || freeX, target.x, pull * 0.4);
+        di.tipY = lerp(di.tipY || freeY, target.y, pull * 0.4);
+        di.contact = Math.min(1, di.contact + 0.03);
       } else {
-        di.tgtX = di.freeTipX; di.tgtY = di.freeTipY;
-        di.contact = Math.max(0, di.contact - 0.02);
+        di.tipX = lerp(di.tipX, freeX, 0.05);
+        di.tipY = lerp(di.tipY, freeY, 0.05);
+        di.contact = Math.max(0, di.contact - 0.01);
       }
 
-      di.tipX = lerp(di.tipX, di.tgtX, 0.08); // Быстрый отклик
-      di.tipY = lerp(di.tipY, di.tgtY, 0.08);
-
-      // Отрисовка с динамической прозрачностью и толщиной
-      const lineDist = Math.sqrt(Math.pow(n.x - di.tipX, 2) + Math.pow(n.y - di.tipY, 2));
-      const distanceFade = Math.max(0, 1 - lineDist / SEEK_DIST);
-      
-      const cpX = (n.x + di.tipX) / 2 + (di.tipY - n.y) * 0.2;
-      const cpY = (n.y + di.tipY) / 2 - (di.tipX - n.x) * 0.2;
-
+      const lineDist = Math.hypot(n.x - di.tipX, n.y - di.tipY);
+      const fade = Math.max(0, 1 - lineDist / SEEK_DIST);
       ctx.beginPath();
-      ctx.strokeStyle = nc(n.col, (0.2 + di.contact * 0.4) * distanceFade);
-      ctx.lineWidth = (0.8 + di.contact * 1.5) * distanceFade;
+      ctx.strokeStyle = nc(n.col, (0.15 + di.contact * 0.4) * fade);
+      ctx.lineWidth = (0.5 + di.contact) * fade;
       ctx.moveTo(n.x, n.y);
-      ctx.quadraticCurveTo(cpX, cpY, di.tipX, di.tipY);
+      ctx.lineTo(di.tipX, di.tipY);
       ctx.stroke();
     }
-
-    // Тело нейрона
-    const glow = (Math.sin(n.pulse) + 1) / 2;
-    ctx.beginPath();
-    ctx.arc(n.x, n.y, n.r + glow * 0.5, 0, Math.PI * 2);
-    ctx.fillStyle = nc(n.col, 0.4 + glow * 0.3);
-    ctx.fill();
   }
   requestAnimationFrame(draw);
 }
 
-const pointer = { x: -999, y: -999, active: false };
-window.addEventListener('mousemove', e => { pointer.x = e.clientX; pointer.y = e.clientY; pointer.active = true; });
-window.addEventListener('touchstart', e => { pointer.active = true; pointer.x = e.touches[0].clientX; pointer.y = e.touches[0].clientY; });
-window.addEventListener('touchend', () => pointer.active = false);
-
 window.addEventListener('resize', () => { resize(); initNodes(); });
 resize(); initNodes(); draw();
 
-// ── GITHUB LOADING ──
+// GitHub Loader
 const GH_USER = 'ValeriiLooper';
-const PINNED = ['monitor_bot_v2', 'news_bot'];
-
 async function loadRepos() {
   const grid = document.getElementById('repos-grid');
   try {
-    const results = await Promise.all(PINNED.map(n => fetch(`https://api.github.com/repos/${GH_USER}/${n}`).then(r => r.json())));
-    const repos = results.filter(r => r.name);
-    if(repos.length > 0) {
-      // Добавляем к уже существующим карточкам
-      grid.innerHTML += repos.map(r => `
-        <div class="card">
-          <h3>${r.name}</h3>
-          <p>${r.description || 'No description'}</p>
-          <div class="proj-tags"><span class="tag">${r.language}</span><span class="tag">⭐ ${r.stargazers_count}</span></div>
-          <a href="${r.html_url}" target="_blank" style="position:absolute; inset:0"></a>
-        </div>
-      `).join('');
-    }
-  } catch(e) { console.error("GH Load Fail"); }
+    const r = await fetch(`https://api.github.com/users/${GH_USER}/repos?sort=updated&per_page=2`);
+    const repos = await r.json();
+    grid.innerHTML += repos.map(repo => `
+      <div class="card">
+        <h3>${repo.name}</h3>
+        <p>${repo.description || 'GitHub Project'}</p>
+        <div style="margin-top:1.5rem"><span class="card-tag">${repo.language || 'Code'}</span></div>
+        <a href="${repo.html_url}" target="_blank" style="position:absolute;inset:0"></a>
+      </div>`).join('');
+  } catch(e) {}
 }
-document.addEventListener('DOMContentLoaded', loadRepos);
-
-// ── SCROLL ANIM ──
-const obs = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.style.opacity = '1'; e.target.style.transform = 'translateY(0)';
-    }
-  });
-}, { threshold: 0.1 });
-document.querySelectorAll('.card, .section-title, .section-desc').forEach(el => {
-  el.style.opacity = '0'; el.style.transform = 'translateY(30px)';
-  el.style.transition = '0.8s ease-out';
-  obs.observe(el);
-});
+loadRepos();
 </script>
 </body>
 </html>
