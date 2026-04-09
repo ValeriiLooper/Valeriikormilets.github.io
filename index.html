@@ -758,7 +758,7 @@ let W, H, nodes = [];
 
 const N_NODES = 88;
 const SEEK_DIST = 80;
-const TIP_CONTACT = 18;   // tip-to-tip distance to form synapse
+const TIP_CONTACT = 60;   // tip-to-tip distance to form synapse
 const SPEED = 0.37;
 const N_DEND = 4;
 const DEND_LEN = 28;
@@ -947,6 +947,11 @@ function draw() {
         ctx.fill();
 
         // draw connection line between tips when fully connected
+       const maxSqDist = SEEK_DIST * SEEK_DIST; 
+if (dist < maxSqDist) { // Рисуем только если дистанция в пределах нормы
+    ctx.lineTo(otherTX, otherTY);
+    ctx.stroke();
+}
         if (d.connectedTo && d.contact > 0.4) {
           const t2 = (n.col + d.connectedTo.col) / 2;
           ctx.beginPath();
