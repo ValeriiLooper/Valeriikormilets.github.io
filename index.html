@@ -8,90 +8,90 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
 <style>
-  /* Плавный скролл для всей страницы */
-html {
-  scroll-behavior: smooth;
-}
+  :root {
+    --bg: #080b12; --surface: #0d1117; --border: rgba(99,179,237,0.12);
+    --blue: #63b3ed; --violet: #b794f4; --text: #e2e8f0; --muted: #718096;
+  }
 
-/* Эффект отражения и прозрачности для карточек */
-.card {
-  position: relative;
-  overflow: hidden;
-  background: rgba(13, 17, 23, 0.7); /* Прозрачность фона */
-  backdrop-filter: blur(4px); /* Размытие за карточкой */
-  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-}
+  /* 1. Плавный скролл */
+  html {
+    scroll-behavior: smooth;
+  }
 
-.card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: -150%;
-  width: 100%; height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(99, 179, 237, 0.08),
-    transparent
-  );
-  transition: 0.8s;
-  z-index: 1;
-}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow-x: hidden; }
+  ::selection { background: var(--blue); color: var(--bg); }
 
-.card:hover::before {
-  left: 150%;
-}
+  #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+  
+  header { padding: 2rem 1.5rem; display: flex; justify-content: space-between; align-items: center; position: fixed; width: 100%; top: 0; z-index: 100; backdrop-filter: blur(8px); }
+  .logo { font-family: 'Space Mono', monospace; font-weight: 700; letter-spacing: 2px; color: var(--blue); }
+  nav a { margin-left: 2rem; text-decoration: none; color: var(--muted); font-size: 0.9rem; transition: 0.3s; }
+  nav a:hover { color: var(--text); }
 
-.card:hover {
-  background: rgba(13, 17, 23, 0.9);
-  border-color: var(--blue);
-  box-shadow: 0 0 30px rgba(99, 179, 237, 0.1);
-  transform: translateY(-8px);
-}
-:root {
-  --bg: #080b12; --surface: #0d1117; --border: rgba(99,179,237,0.12);
-  --blue: #63b3ed; --violet: #b794f4; --text: #e2e8f0; --muted: #718096;
-}
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow-x: hidden; }
-::selection { background: var(--blue); color: var(--bg); }
-#canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
-.section-inner { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
-header { padding: 2rem 1.5rem; display: flex; justify-content: space-between; align-items: center; position: fixed; width: 100%; top: 0; z-index: 100; backdrop-filter: blur(8px); }
-.logo { font-family: 'Space Mono', monospace; font-weight: 700; letter-spacing: 2px; color: var(--blue); }
-nav a { margin-left: 2rem; text-decoration: none; color: var(--muted); font-size: 0.9rem; transition: 0.3s; }
-nav a:hover { color: var(--text); }
+  .section-inner { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
+  .hero { height: 100vh; display: flex; align-items: center; padding: 0 1.5rem; }
+  .hero h1 { font-size: clamp(2.5rem, 8vw, 4.5rem); line-height: 1.1; margin-bottom: 1.5rem; font-weight: 600; }
+  .hero p { max-width: 600px; color: var(--muted); font-size: 1.1rem; margin-bottom: 2.5rem; }
 
-.hero { height: 100vh; display: flex; align-items: center; padding: 0 1.5rem; }
-.hero h1 { font-size: clamp(2.5rem, 8vw, 4.5rem); line-height: 1.1; margin-bottom: 1.5rem; font-weight: 600; }
-.hero p { max-width: 600px; color: var(--muted); font-size: 1.1rem; margin-bottom: 2.5rem; }
+  section { padding: 8rem 1.5rem; }
+  .section-title { font-family: 'Space Mono', monospace; color: var(--blue); font-size: 0.8rem; letter-spacing: 3px; margin-bottom: 1rem; text-transform: uppercase; }
+  .section-desc { font-size: 2.2rem; font-weight: 600; margin-bottom: 4rem; max-width: 800px; }
 
-section { padding: 8rem 1.5rem; }
-.section-title { font-family: 'Space Mono', monospace; color: var(--blue); font-size: 0.8rem; letter-spacing: 3px; margin-bottom: 1rem; text-transform: uppercase; }
-.section-desc { font-size: 2.2rem; font-weight: 600; margin-bottom: 4rem; max-width: 800px; }
+  .cards { display: grid; gap: 1.5rem; }
+  .cards-3 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .cards-2 { grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); }
 
-.cards { display: grid; gap: 1.5rem; }
-.cards-3 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
-.cards-2 { grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); }
+  /* 4. Эффект отражения и прозрачности */
+  .card { 
+    background: rgba(13, 17, 23, 0.7); 
+    border: 1px solid var(--border); 
+    padding: 2.5rem; 
+    border-radius: 16px; 
+    position: relative; 
+    overflow: hidden;
+    backdrop-filter: blur(4px);
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  }
 
-.card { 
-  background: var(--surface); border: 1px solid var(--border); padding: 2.5rem; border-radius: 16px; 
-  transition: 0.4s; position: relative; overflow: hidden;
-}
-.card:hover { border-color: var(--blue); transform: translateY(-5px); }
-.card h3 { font-size: 1.4rem; margin-bottom: 1rem; }
-.card p { color: var(--muted); font-size: 0.95rem; }
-.card-tag { display: inline-block; margin-top: 1.5rem; font-family: 'Space Mono'; font-size: 0.7rem; color: var(--blue); border: 1px solid rgba(99,179,237,0.3); padding: 2px 8px; border-radius: 4px; }
-.proj-num { font-family: 'Space Mono'; color: var(--muted); opacity: 0.2; font-size: 3rem; position: absolute; top: 1rem; right: 1.5rem; }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -150%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(99, 179, 237, 0.1), transparent);
+    transition: 0.8s;
+    z-index: 1;
+  }
 
-footer { padding: 4rem 1.5rem; text-align: center; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.8rem; }
+  .card:hover::before { left: 150%; }
+
+  .card:hover { 
+    background: rgba(13, 17, 23, 0.9);
+    border-color: var(--blue); 
+    transform: translateY(-8px); 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+
+  .card h3 { font-size: 1.4rem; margin-bottom: 1rem; position: relative; z-index: 2; }
+  .card p { color: var(--muted); font-size: 0.95rem; position: relative; z-index: 2; }
+  .card-tag { display: inline-block; margin-top: 1.5rem; font-family: 'Space Mono'; font-size: 0.7rem; color: var(--blue); border: 1px solid rgba(99,179,237,0.3); padding: 2px 8px; border-radius: 4px; }
+  .proj-num { font-family: 'Space Mono'; color: var(--muted); opacity: 0.2; font-size: 3rem; position: absolute; top: 1rem; right: 1.5rem; }
+
+  footer { padding: 4rem 1.5rem; text-align: center; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.8rem; }
 </style>
 </head>
 <body>
+
 <canvas id="canvas-bg"></canvas>
 
 <header>
   <div class="logo">MY_LAB</div>
-  <nav><a href="#research">Направления</a><a href="#projects">Проекты</a><a href="https://github.com/ValeriiLooper" target="_blank">GitHub</a></nav>
+  <nav>
+    <a href="#research">Направления</a>
+    <a href="#projects">Проекты</a>
+    <a href="https://github.com/ValeriiLooper" target="_blank">GitHub</a>
+  </nav>
 </header>
 
 <main>
@@ -116,32 +116,21 @@ footer { padding: 4rem 1.5rem; text-align: center; border-top: 1px solid var(--b
 
   <section id="projects">
     <div class="section-inner">
-      <div class="section-title">02 / Избранные проекты</div>
-      <div class="section-desc">Практическая реализация идей.</div>
+      <div class="section-title">02 / GitHub Проекты</div>
+      <div class="section-desc">Автоматическая синхронизация репозиториев.</div>
       <div class="cards cards-2" id="repos-grid">
-        <div class="card">
-          <div class="proj-num">01</div>
-          <h3>Project_Alpha</h3>
-          <p>Система предиктивной аналитики для мониторинга аномалий в реальном времени. Снижение ложных срабатываний на 30%.</p>
-          <div style="margin-top:1.5rem"><span class="card-tag">Python</span> <span class="card-tag">PyTorch</span></div>
         </div>
-        <div class="card">
-          <div class="proj-num">02</div>
-          <h3>NeuroVision_SDK</h3>
-          <p>Библиотека для компьютерного зрения, оптимизированная под мобильные процессоры.</p>
-          <div style="margin-top:1.5rem"><span class="card-tag">C++</span> <span class="card-tag">ONNX</span></div>
-        </div>
-      </div>
     </div>
   </section>
 </main>
 
 <footer><p>&copy; 2026 ValeriiLooper. Симуляция нейронной сети активна.</p></footer>
 
+<script>
 const canvas = document.getElementById('canvas-bg');
 const ctx = canvas.getContext('2d');
 let width, height, nodes = [];
-let lastScreenWidth = window.innerWidth; // Для фиксации срывов на мобильных
+let lastScreenWidth = window.innerWidth;
 
 const N_NODES = 128; 
 const SPEED = 0.28;
@@ -154,7 +143,7 @@ function resize() {
   height = canvas.height = window.innerHeight;
 }
 
-// Исправление срыва анимации на мобильных устройствах
+// 2. Исправление срыва анимации на мобильных
 window.addEventListener('resize', () => {
   if (window.innerWidth !== lastScreenWidth) {
     lastScreenWidth = window.innerWidth;
@@ -183,7 +172,6 @@ function draw() {
   for (let i = 0; i < nodes.length; i++) {
     const n = nodes[i];
     
-    // Взаимное отталкивание
     for (let j = i + 1; j < nodes.length; j++) {
       const m = nodes[j];
       const dx = m.x - n.x, dy = m.y - n.y;
@@ -226,7 +214,8 @@ function draw() {
         di.contact = Math.max(0, di.contact - 0.02);
       }
 
-      const fade = Math.max(0, 1 - Math.hypot(n.x - di.tipX, n.y - di.tipY) / SEEK_DIST);
+      const dist = Math.hypot(n.x - di.tipX, n.y - di.tipY);
+      const fade = Math.max(0, 1 - dist / SEEK_DIST);
       const cpX = (n.x + di.tipX) / 2 + (di.tipY - n.y) * 0.25;
       const cpY = (n.y + di.tipY) / 2 - (di.tipX - n.x) * 0.25;
 
@@ -236,7 +225,7 @@ function draw() {
       ctx.moveTo(n.x, n.y);
       ctx.quadraticCurveTo(cpX, cpY, di.tipX, di.tipY);
       ctx.stroke();
-    }
+    });
 
     const glow = (Math.sin(n.pulse * 2) + 1) / 2;
     ctx.beginPath();
@@ -249,17 +238,15 @@ function draw() {
 
 resize(); initNodes(); draw();
 
-// Загрузка ВСЕХ открытых репозиториев
+// 3. Загрузка ВСЕХ открытых репозиториев
 async function loadRepos() {
   const grid = document.getElementById('repos-grid');
   const GH_USER = 'ValeriiLooper';
   try {
-    // Убираем per_page или ставим 100 для загрузки всех
     const r = await fetch(`https://api.github.com/users/${GH_USER}/repos?sort=updated&visibility=public&per_page=100`);
     const repos = await r.json();
     
-    // Очищаем и выводим (исключаем форки для чистоты портфолио, если нужно)
-    const html = repos
+    grid.innerHTML = repos
       .filter(repo => !repo.fork) 
       .map(repo => `
         <div class="card">
@@ -269,8 +256,9 @@ async function loadRepos() {
           <div style="margin-top:1.5rem"><span class="card-tag">${repo.language || 'Code'}</span></div>
           <a href="${repo.html_url}" target="_blank" style="position:absolute;inset:0"></a>
         </div>`).join('');
-    
-    grid.innerHTML = html;
   } catch(e) { console.error("Ошибка загрузки GitHub"); }
 }
 loadRepos();
+</script>
+</body>
+</html>
