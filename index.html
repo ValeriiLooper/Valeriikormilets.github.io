@@ -8,6 +8,45 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
 <style>
+  /* Плавный скролл для всей страницы */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Эффект отражения и прозрачности для карточек */
+.card {
+  position: relative;
+  overflow: hidden;
+  background: rgba(13, 17, 23, 0.7); /* Прозрачность фона */
+  backdrop-filter: blur(4px); /* Размытие за карточкой */
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -150%;
+  width: 100%; height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(99, 179, 237, 0.08),
+    transparent
+  );
+  transition: 0.8s;
+  z-index: 1;
+}
+
+.card:hover::before {
+  left: 150%;
+}
+
+.card:hover {
+  background: rgba(13, 17, 23, 0.9);
+  border-color: var(--blue);
+  box-shadow: 0 0 30px rgba(99, 179, 237, 0.1);
+  transform: translateY(-8px);
+}
 :root {
   --bg: #080b12; --surface: #0d1117; --border: rgba(99,179,237,0.12);
   --blue: #63b3ed; --violet: #b794f4; --text: #e2e8f0; --muted: #718096;
@@ -99,18 +138,31 @@ footer { padding: 4rem 1.5rem; text-align: center; border-top: 1px solid var(--b
 
 <footer><p>&copy; 2026 ValeriiLooper. Симуляция нейронной сети активна.</p></footer>
 
-<script>
 const canvas = document.getElementById('canvas-bg');
 const ctx = canvas.getContext('2d');
 let width, height, nodes = [];
+let lastScreenWidth = window.innerWidth; // Для фиксации срывов на мобильных
 
 const N_NODES = 128; 
-const SPEED = 0.28;       // Слегка повысил для отзывчивости
+const SPEED = 0.28;
 const SEEK_DIST = 110;    
-const FRICTION = 0.5;     // Вязкость при контакте
-const REPULSION = 15;     // Сила отталкивания тел нейронов
+const FRICTION = 0.5;
+const BOUNCE_DAMP = 0.8;
 
-function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+function resize() {
+  width = canvas.width = window.innerWidth;
+  height = canvas.height = window.innerHeight;
+}
+
+// Исправление срыва анимации на мобильных устройствах
+window.addEventListener('resize', () => {
+  if (window.innerWidth !== lastScreenWidth) {
+    lastScreenWidth = window.innerWidth;
+    resize();
+    initNodes();
+  }
+});
+
 function nc(t, a) { return `hsla(${190 + t * 60}, 75%, 70%, ${a})`; }
 function lerp(a, b, t) { return a + (b - a) * t; }
 
@@ -128,31 +180,28 @@ function initNodes() {
 
 function draw() {
   ctx.clearRect(0, 0, width, height);
-
   for (let i = 0; i < nodes.length; i++) {
     const n = nodes[i];
     
-    // Взаимное отталкивание (чтобы не слипались)
+    // Взаимное отталкивание
     for (let j = i + 1; j < nodes.length; j++) {
       const m = nodes[j];
       const dx = m.x - n.x, dy = m.y - n.y;
       const d = Math.hypot(dx, dy);
-      if (d < 40) {
-        const force = (40 - d) * 0.0005;
+      if (d < 45) {
+        const force = (45 - d) * 0.0004;
         n.vx -= dx * force; n.vy -= dy * force;
         m.vx += dx * force; m.vy += dy * force;
       }
     }
 
     const hasContact = n.dendrits.some(d => d.contact > 0.5);
-    const currFriction = hasContact ? FRICTION : 1.0;
+    n.x += n.vx * SPEED * (hasContact ? FRICTION : 1);
+    n.y += n.vy * SPEED * (hasContact ? FRICTION : 1);
+    n.pulse += 0.015;
 
-    n.x += n.vx * SPEED * currFriction;
-    n.y += n.vy * SPEED * currFriction;
-    n.pulse += 0.015; // Плавное вращение
-
-    if (n.x < 0 || n.x > width) n.vx *= -0.8;
-    if (n.y < 0 || n.y > height) n.vy *= -0.8;
+    if (n.x < 0 || n.x > width) { n.vx *= -BOUNCE_DAMP; n.x = n.x < 0 ? 0 : width; }
+    if (n.y < 0 || n.y > height) { n.vy *= -BOUNCE_DAMP; n.y = n.y < 0 ? 0 : height; }
 
     n.dendrits.forEach((di, idx) => {
       const angle = n.pulse + i + idx * Math.PI;
@@ -177,9 +226,7 @@ function draw() {
         di.contact = Math.max(0, di.contact - 0.02);
       }
 
-      // Отрисовка органической кривой отростка
-      const lineDist = Math.hypot(n.x - di.tipX, n.y - di.tipY);
-      const fade = Math.max(0, 1 - lineDist / SEEK_DIST);
+      const fade = Math.max(0, 1 - Math.hypot(n.x - di.tipX, n.y - di.tipY) / SEEK_DIST);
       const cpX = (n.x + di.tipX) / 2 + (di.tipY - n.y) * 0.25;
       const cpY = (n.y + di.tipY) / 2 - (di.tipX - n.x) * 0.25;
 
@@ -189,17 +236,8 @@ function draw() {
       ctx.moveTo(n.x, n.y);
       ctx.quadraticCurveTo(cpX, cpY, di.tipX, di.tipY);
       ctx.stroke();
+    }
 
-      // Синапс (точка на конце)
-      if (di.contact > 0.2) {
-        ctx.beginPath();
-        ctx.arc(di.tipX, di.tipY, 1.2 * di.contact, 0, Math.PI*2);
-        ctx.fillStyle = nc(n.col, di.contact * 0.8 * fade);
-        ctx.fill();
-      }
-    });
-
-    // ТЕЛО НЕЙРОНА (ядро)
     const glow = (Math.sin(n.pulse * 2) + 1) / 2;
     ctx.beginPath();
     ctx.arc(n.x, n.y, n.r + glow * 0.6, 0, Math.PI * 2);
@@ -209,25 +247,30 @@ function draw() {
   requestAnimationFrame(draw);
 }
 
-window.addEventListener('resize', () => { resize(); initNodes(); });
 resize(); initNodes(); draw();
 
-// GitHub Loader
+// Загрузка ВСЕХ открытых репозиториев
 async function loadRepos() {
   const grid = document.getElementById('repos-grid');
+  const GH_USER = 'ValeriiLooper';
   try {
-    const r = await fetch(`https://api.github.com/users/ValeriiLooper/repos?sort=updated&per_page=2`);
+    // Убираем per_page или ставим 100 для загрузки всех
+    const r = await fetch(`https://api.github.com/users/${GH_USER}/repos?sort=updated&visibility=public&per_page=100`);
     const repos = await r.json();
-    grid.innerHTML += repos.map(repo => `
-      <div class="card">
-        <h3>${repo.name}</h3>
-        <p>${repo.description || 'GitHub Project'}</p>
-        <div style="margin-top:1.5rem"><span class="card-tag">${repo.language || 'Code'}</span></div>
-        <a href="${repo.html_url}" target="_blank" style="position:absolute;inset:0"></a>
-      </div>`).join('');
-  } catch(e) {}
+    
+    // Очищаем и выводим (исключаем форки для чистоты портфолио, если нужно)
+    const html = repos
+      .filter(repo => !repo.fork) 
+      .map(repo => `
+        <div class="card">
+          <div class="proj-num">${repo.stargazers_count > 0 ? '★ ' + repo.stargazers_count : 'JS'}</div>
+          <h3>${repo.name}</h3>
+          <p>${repo.description || 'Открытый репозиторий проекта.'}</p>
+          <div style="margin-top:1.5rem"><span class="card-tag">${repo.language || 'Code'}</span></div>
+          <a href="${repo.html_url}" target="_blank" style="position:absolute;inset:0"></a>
+        </div>`).join('');
+    
+    grid.innerHTML = html;
+  } catch(e) { console.error("Ошибка загрузки GitHub"); }
 }
 loadRepos();
-</script>
-</body>
-</html>
