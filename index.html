@@ -467,22 +467,20 @@
       <!-- POST 1 -->
       <article class="obs-card">
         <div class="obs-meta">
-          <span class="obs-date">2026 · 03 · 21</span>
-          <span class="obs-tag">canvas · interaction</span>
+          <span class="obs-date">2026 · 04 · 09</span>
+          <span class="obs-tag">reverse engineering · RAG · API</span>
         </div>
-        <h3 class="obs-title">DOM × Canvas: синхронизация через состояние резонанса</h3>
+        <h3 class="obs-title">Когнитивная архитектура: афантазия как аналитическое преимущество</h3>
         <p class="obs-body">Чтобы связать карточки с анимацией нейронной сети, достаточно глобального модификатора состояния и плавного lerp-перехода. Без него резкое ускорение частиц выглядит как баг — с ним воспринимается как органический отклик живой системы.</p>
 
         <div class="obs-code">
           <div class="obs-code-header"><span class="obs-code-lang">javascript</span></div>
-          <pre><code>let networkBoost = 0, targetBoost = 0;
+          <pre><code>Реверс-инжиниринг API заключается в деконструкции интерфейса для понимания его внутренней работы без опоры на официальную документацию. Процесс включает четыре ключевых этапа:
 
-card.addEventListener('mouseenter', () => targetBoost = 1.0);
-card.addEventListener('mouseleave', () => targetBoost = 0);
-
-// в draw():
-networkBoost = lerp(networkBoost, targetBoost, 0.05);
-n.x += n.vx * (1 + networkBoost * 3);</code></pre>
+            1. Идентификация источников: Использование инструментов мониторинга сетевого трафика (Network Tab в браузере) для захвата вызовов и ответов.
+            2. Тестирование запросов: Воспроизведение запросов вне браузера (например, через Postman или Insomnia) для проверки обязательных параметров и заголовков.
+            3. Модификация структуры: Понимание и изменение структуры запросов для извлечения данных в обход ограничений интерфейса.
+            4.Автоматизация: Создание веб-скрейперов или ботов, имитирующих поведение легитимного клиента.</code></pre>
         </div>
 
         <div class="obs-insight">
@@ -758,7 +756,7 @@ const canvas = document.getElementById('neural-canvas');
 const ctx = canvas.getContext('2d');
 let W, H, nodes = [];
 
-const N_NODES = 128;
+const N_NODES = 256;
 const SEEK_DIST = 170;
 const TIP_CONTACT = 18;   // tip-to-tip distance to form synapse
 const SPEED = 0.37;
